@@ -28,7 +28,7 @@ EOF
 }
 
 echo Versions used
-git --version
+git --version #TODO: check we have git version >= 2.0, https://stackoverflow.com/a/14273595
 grep --version
 
 SCRIPT_HOME=`pwd`
@@ -92,7 +92,7 @@ pushd ${ESPP_REPO_PATH}
   for es_ver in "${es_versions[@]}"
     do
       echo "Found ES Prometheus plugin releases for v${es_ver}"
-      git tag 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_ver}\.\d+\.\d+\.\d+$"
+      git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_ver}\.\d+\.\d+\.\d+$"
     done
 popd
 
@@ -101,6 +101,6 @@ pushd ${ES_REPO_PATH}
   for es_ver in "${es_versions[@]}"
     do
       echo "Found Elasticsearch releases for v${es_ver}"
-      git tag 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_ver}\.\d+\.\d+$" # skipping alpha, beta, rc, ...
+      git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_ver}\.\d+\.\d+$" # skipping alpha, beta, rc, ...
     done
 popd
