@@ -2,8 +2,7 @@
 
 set -euxo pipefail
 
-usage() {
-    local bn=$( basename $0 )
+function usage() {
     cat <<EOF
 Usage: $0
 This script converts clone of elasticsearch-prometheus-exporter repository into
@@ -19,10 +18,10 @@ ESPP_REPO_PATH - path where the Elasticsearch Prometheus Plugin repo is cloned i
 ES_REPO_PATH - path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
                Any existing folder at this part is deleted first when this script starts.
 
-SKIP_ESPP_DOWNLOAD - skip cloning ES Prometheus plugin source code. Assuming local copy is used.
+SKIP_ESPP_DOWNLOAD - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
                      This is useful to locally debug the code.
 
-SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used.
+SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
                    This is useful to locally debug the code.
 
 EOF
@@ -33,15 +32,27 @@ SCRIPT_HOME=`pwd`
 
 ESPP_REPO_NAME=elasticsearch-prometheus-exporter
 ESPP_REPO_URL=https://github.com/vvanholl/${ESPP_REPO_NAME}.git
-SKIP_ESPP_DOWNLOAD=0 # false
+SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
 
 ES_REPO_NAME=elasticsearch
 ES_REPO_URL=https://github.com/elastic/${ES_REPO_NAME}.git
-SKIP_ES_DOWNLOAD=0 # false
+SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
 
 case "${1:-}" in
 --h*|-h*) usage ; exit 1 ;;
 esac
+
+function clone_repo() {
+    local repo_url="$1"
+    local repo_path="$2"
+    shift; shift
+    local args=( "${@:-}" )
+
+    if [[ -d ${repo_path} ]] ; then
+      rm -rf ${repo_path}
+    fi
+    git clone ${repo_url} ${repo_path}
+}
 
 export ESPP_REPO_PATH=${ESPP_REPO_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
        ES_REPO_PATH=${ES_REPO_PATH:-$SCRIPT_HOME/$ES_REPO_NAME}
@@ -51,33 +62,23 @@ export ESPP_REPO_PATH=${ESPP_REPO_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
 # ----------------------------------
 # Clone Plugin code locally
 # ----------------------------------
-if [[ "${SKIP_ESPP_DOWNLOAD:-0}" = 1  ]] ; then
-    if [[ -d ${ESPP_REPO_PATH} ]] ; then
-      rm -rf ${ESPP_REPO_PATH}
-    fi
-    git clone ${ESPP_REPO_URL} ${ESPP_REPO_PATH}
+if [[ "${SKIP_ESPP_DOWNLOAD:-0}" = 0  ]] ; then
+    clone_repo ${ESPP_REPO_URL} ${ESPP_REPO_PATH}
 fi
 pushd ${ESPP_REPO_PATH}
-  ls -la
-  git fetch
   git branch -a
 popd
 
 # ----------------------------------
 # Clone Elasticsearch code locally
 # ----------------------------------
-if [[ "${SKIP_ES_DOWNLOAD:-0}" = 1  ]] ; then
-    if [[ -d ${ES_REPO_PATH} ]] ; then
-      rm -rf ${ES_REPO_PATH}
-    fi
-    git clone ${ES_REPO_URL} ${ES_REPO_PATH}
+if [[ "${SKIP_ES_DOWNLOAD:-0}" = 0  ]] ; then
+    clone_repo ${ES_REPO_URL} ${ES_REPO_PATH}
 fi
 
 declare -a es_versions=("2" "5" "6")
 #declare -a es_versions=("5" "6")
 pushd ${ES_REPO_PATH}
-  ls -la
-  git fetch
   for es_ver in "${es_versions[@]}"
     do
       echo "Found Elasticsearch releases for v${es_ver}"
