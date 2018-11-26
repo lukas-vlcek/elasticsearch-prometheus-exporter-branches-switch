@@ -77,29 +77,30 @@ export ESPP_REPO_PATH=${ESPP_REPO_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
        SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
        SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
 
-# ----------------------------------
-# Clone Plugin code locally
-# ----------------------------------
+declare -a es_versions=("2" "5" "6")
+#declare -a es_versions=("5" "6") # let's skip branch 2x for now...
+
 if [[ "${SKIP_ESPP_DOWNLOAD:-0}" = 0  ]] ; then
     clone_repo ${ESPP_REPO_URL} ${ESPP_REPO_PATH}
 fi
-pushd ${ESPP_REPO_PATH}
-  git branch -a
-popd
-
-# ----------------------------------
-# Clone Elasticsearch code locally
-# ----------------------------------
 if [[ "${SKIP_ES_DOWNLOAD:-0}" = 0  ]] ; then
     clone_repo ${ES_REPO_URL} ${ES_REPO_PATH}
 fi
 
-declare -a es_versions=("2" "5" "6")
-#declare -a es_versions=("5" "6")
+# Print all relevant release tags of ES Prometheus plugin
+pushd ${ESPP_REPO_PATH}
+  for es_ver in "${es_versions[@]}"
+    do
+      echo "Found ES Prometheus plugin releases for v${es_ver}"
+      git tag 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_ver}\.\d+\.\d+\.\d+$"
+    done
+popd
+
+# Print all relevant release tags of Elasticsearch
 pushd ${ES_REPO_PATH}
   for es_ver in "${es_versions[@]}"
     do
       echo "Found Elasticsearch releases for v${es_ver}"
-      git tag 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_ver}\.\d\.\d$" # skipping alpha, beta, rc, ...
+      git tag 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_ver}\.\d+\.\d+$" # skipping alpha, beta, rc, ...
     done
 popd
