@@ -45,6 +45,21 @@ case "${1:-}" in
 --h*|-h*) usage ; exit 1 ;;
 esac
 
+# grep options use different syntax depending on host type
+# https://ponderthebits.com/2017/01/know-your-tools-linux-gnu-vs-mac-bsd-command-line-utilities-grep-strings-sed-and-find/
+function bsd_or_gnu_grep_switch() {
+    local switch="dunno"
+    # BSD or GNU?
+    if date -v 1d > /dev/null 2>&1; then
+      #BSD
+      switch='-Eo'
+    else
+      # GNU
+      switch='-Po'
+    fi
+    echo ${switch}
+}
+
 function clone_repo() {
     local repo_url="$1"
     local repo_path="$2"
@@ -85,6 +100,6 @@ pushd ${ES_REPO_PATH}
   for es_ver in "${es_versions[@]}"
     do
       echo "Found Elasticsearch releases for v${es_ver}"
-      git tag 2>/dev/null | grep "^v${es_ver}\.\d\.\d$" # skipping alpha, beta, rc, ...
+      git tag 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_ver}\.\d\.\d$" # skipping alpha, beta, rc, ...
     done
 popd
