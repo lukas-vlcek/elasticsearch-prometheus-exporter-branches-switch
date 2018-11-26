@@ -27,6 +27,9 @@ SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used 
 EOF
 }
 
+Echo Versions used
+git --version
+grep --version
 
 SCRIPT_HOME=`pwd`
 
