@@ -1,6 +1,5 @@
 script:
   - pwd
-  - git clone https://github.com/vvanholl/elasticsearch-prometheus-exporter.git
   - ls -la
-  - cd elasticsearch-prometheus-exporter
+  - ./branch-out-139.sh
   - ls -la
