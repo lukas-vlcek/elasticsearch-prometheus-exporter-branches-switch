@@ -118,10 +118,19 @@ for es_major_ver in "${es_major_versions[@]}"
 do
   echo "Processing Elasticsearch releases for v${es_major_ver}.x"
   releases=$(list_es_releases ${es_major_ver})
-  for release in ${releases}
+  for es_release in ${releases}
   do
      # Print all relevant release tags of ES Prometheus plugin
-    echo "Found ES Prometheus plugin releases for ${release}.x"
-    list_plugin_releases ${release}
+    echo "Found ES Prometheus plugin releases for ${es_release}.x"
+    release_branches=($(list_plugin_releases ${es_release}))
+    rb_Len=${#release_branches[@]}
+    if [[ $rb_Len = 0 ]] ; then
+      echo "There are no plugin releases for ES release ${es_release}. You might want to fix this manually."
+    else
+      for new_branch in ${release_branches}
+      do
+        echo "Create and populate new branch ${new_branch} ..."
+      done
+    fi
   done
 done
