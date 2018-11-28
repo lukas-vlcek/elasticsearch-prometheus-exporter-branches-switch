@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+#set -euxo pipefail
 
 function usage() {
     cat <<EOF
@@ -72,13 +72,39 @@ function clone_repo() {
     git clone ${repo_url} ${repo_path}
 }
 
+# argument is major ES version number (like "2")
+function list_es_releases() {
+    local es_major_ver="$1"
+    shift
+    local args=( "${@:-}" )
+
+    pushd ${ES_REPO_PATH} > /dev/null
+    # pull all git tags for given major version; skipping alpha, beta, rc, ...
+    local -a array=($(git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_major_ver}\.\d+\.\d+$"))
+    popd > /dev/null
+    # get rid of the "v" prefix
+    for ix in ${!array[*]} ; do echo "${array[$ix]}" | cut -c 2-20 ; done
+}
+
+# argument is ES release version number (like "2.4.2")
+function list_plugin_releases() {
+    local es_release_ver="$1"
+    shift
+    local args=( "${@:-}" )
+
+    pushd ${ESPP_REPO_PATH} > /dev/null
+#    git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_major_ver}\.\d+\.\d+\.\d+$"
+    git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_release_ver}\.\d+$"
+    popd > /dev/null
+}
+
 export ESPP_REPO_PATH=${ESPP_REPO_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
        ES_REPO_PATH=${ES_REPO_PATH:-$SCRIPT_HOME/$ES_REPO_NAME}
        SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
        SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
 
-declare -a es_versions=("2" "5" "6")
-#declare -a es_versions=("5" "6") # let's skip branch 2x for now...
+# Which major ES releases we are going to process
+declare -a es_major_versions=("2" "5" "6")
 
 if [[ "${SKIP_ESPP_DOWNLOAD:-0}" = 0  ]] ; then
     clone_repo ${ESPP_REPO_URL} ${ESPP_REPO_PATH}
@@ -87,20 +113,15 @@ if [[ "${SKIP_ES_DOWNLOAD:-0}" = 0  ]] ; then
     clone_repo ${ES_REPO_URL} ${ES_REPO_PATH}
 fi
 
-# Print all relevant release tags of ES Prometheus plugin
-pushd ${ESPP_REPO_PATH}
-  for es_ver in "${es_versions[@]}"
-    do
-      echo "Found ES Prometheus plugin releases for v${es_ver}"
-      git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_ver}\.\d+\.\d+\.\d+$"
-    done
-popd
-
 # Print all relevant release tags of Elasticsearch
-pushd ${ES_REPO_PATH}
-  for es_ver in "${es_versions[@]}"
-    do
-      echo "Found Elasticsearch releases for v${es_ver}"
-      git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_ver}\.\d+\.\d+$" # skipping alpha, beta, rc, ...
-    done
-popd
+for es_major_ver in "${es_major_versions[@]}"
+do
+  echo "Processing Elasticsearch releases for v${es_major_ver}.x"
+  releases=$(list_es_releases ${es_major_ver})
+  for release in ${releases}
+  do
+     # Print all relevant release tags of ES Prometheus plugin
+    echo "Found ES Prometheus plugin releases for ${release}.x"
+    list_plugin_releases ${release}
+  done
+done
