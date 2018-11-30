@@ -5,6 +5,9 @@
 function usage() {
     cat <<EOF
 Usage: $0
+
+Example: $0 1> branching.log 2> error.log
+
 This script converts clone of elasticsearch-prometheus-exporter repository into
 branches as discussed in https://github.com/vvanholl/elasticsearch-prometheus-exporter/issues/139
 
@@ -27,9 +30,9 @@ SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used 
 EOF
 }
 
-echo Versions used
-git --version #TODO: check we have git version >= 2.0, https://stackoverflow.com/a/14273595
-grep --version
+#echo Versions used
+#git --version #TODO: check we have git version >= 2.0, https://stackoverflow.com/a/14273595
+#grep --version
 
 SCRIPT_HOME=`pwd`
 
@@ -103,9 +106,6 @@ export ESPP_REPO_PATH=${ESPP_REPO_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
        SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
        SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
 
-# Which major ES releases we are going to process
-declare -a es_major_versions=("2" "5" "6")
-
 if [[ "${SKIP_ESPP_DOWNLOAD:-0}" = 0  ]] ; then
     clone_repo ${ESPP_REPO_URL} ${ESPP_REPO_PATH}
 fi
@@ -113,24 +113,31 @@ if [[ "${SKIP_ES_DOWNLOAD:-0}" = 0  ]] ; then
     clone_repo ${ES_REPO_URL} ${ES_REPO_PATH}
 fi
 
-# Print all relevant release tags of Elasticsearch
+# Which major ES releases we are going to process
+declare -a es_major_versions=("2" "5" "6")
+
 for es_major_ver in "${es_major_versions[@]}"
 do
-  echo "Processing Elasticsearch releases for v${es_major_ver}.x"
+  echo "Processing Elasticsearch releases for v${es_major_ver}.x:"
   releases=$(list_es_releases ${es_major_ver})
   for es_release in ${releases}
   do
      # Print all relevant release tags of ES Prometheus plugin
-    echo "Found ES Prometheus plugin releases for ${es_release}.x"
+    echo "  - ES v${es_release}"
     release_branches=($(list_plugin_releases ${es_release}))
     rb_Len=${#release_branches[@]}
     if [[ $rb_Len = 0 ]] ; then
-      echo "There are no plugin releases for ES release ${es_release}. You might want to fix this manually."
+      (>&2 echo "    - No plugin releases found for ES ${es_release}; you might want to fix this manually")
     else
-      for new_branch in ${release_branches}
+      echo "    - Create and populate new branch ${es_release} to include tags:"
+      for new_branch in "${release_branches[@]}"
       do
-        echo "Create and populate new branch ${new_branch} ..."
+        echo "      - ${new_branch}"
       done
+      echo "      git checkout ${release_branches[${#release_branches[@]}-1]}"
+      echo "      git checkout -b ${es_release}"
+      echo "      git add *"
+      echo "      git commit -m \"Creating branch ${es_release}\""
     fi
   done
 done
