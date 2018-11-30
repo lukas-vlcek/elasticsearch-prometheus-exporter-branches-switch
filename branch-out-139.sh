@@ -27,6 +27,8 @@ SKIP_ESPP_DOWNLOAD - skip cloning ES Prometheus plugin source code. Assuming loc
 SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
                    This is useful to locally debug the code.
 
+PUSH_TO_ORIGIN - push new branches to plugin origin repo? (defaults to false).
+
 EOF
 }
 
@@ -35,6 +37,7 @@ EOF
 #grep --version
 
 SCRIPT_HOME=`pwd`
+PUSH_TO_ORIGIN=${PUSH_TO_ORIGIN:-false}
 
 ESPP_REPO_NAME=elasticsearch-prometheus-exporter
 ESPP_REPO_URL=https://github.com/vvanholl/${ESPP_REPO_NAME}.git
@@ -136,8 +139,10 @@ do
       done
       echo "      git checkout ${release_branches[${#release_branches[@]}-1]}"
       echo "      git checkout -b ${es_release}"
-      echo "      git add *"
-      echo "      git commit -m \"Creating branch ${es_release}\""
+      if [[ "true" == "${PUSH_TO_ORIGIN}" ]] ; then
+        echo "      git push origin ${es_release}"
+      fi
+      echo "      git checkout master"
     fi
   done
 done
