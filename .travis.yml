@@ -1,3 +1,7 @@
+env:
+  - DRY_RUN=true
+  - PUSH_CHANGES_BACK=false
+
 script:
   - pwd
   - ls -la
