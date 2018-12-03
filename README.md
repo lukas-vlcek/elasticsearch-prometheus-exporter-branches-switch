@@ -34,7 +34,7 @@ ESPP_CLONE_PATH - local path where the Elasticsearch Prometheus Plugin repo is c
                   (defaults to ./elasticsearch-prometheus-exporter).
                   Any existing folder at this path is deleted first when this script starts.
 
-SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
+SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to false).
                   This is useful to locally debug the code.
 
 ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
@@ -42,7 +42,7 @@ ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
 ES_CLONE_PATH - local path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
                 Any existing folder at this path is deleted first when this script starts.
 
-SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
+SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to false).
                 This is useful to locally debug the code.
 ```
 
