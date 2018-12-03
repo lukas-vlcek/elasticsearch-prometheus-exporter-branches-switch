@@ -24,7 +24,7 @@ ESPP_CLONE_PATH - local path where the Elasticsearch Prometheus Plugin repo is c
                   (defaults to ./elasticsearch-prometheus-exporter).
                   Any existing folder at this path is deleted first when this script starts.
 
-SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
+SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to true).
                   This is useful to locally debug the code.
 
 ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
@@ -32,7 +32,7 @@ ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
 ES_CLONE_PATH - local path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
                 Any existing folder at this path is deleted first when this script starts.
 
-SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
+SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to true).
                 This is useful to locally debug the code.
 EOF
 }
@@ -47,12 +47,12 @@ PUSH_CHANGES_BACK=${PUSH_CHANGES_BACK:-false}
 
 ESPP_REPO_NAME=elasticsearch-prometheus-exporter
 ESPP_REPO_URL=${ESPP_REPO_URL:-https://github.com/vvanholl/${ESPP_REPO_NAME}.git}
-SKIP_ESPP_CLONE=${SKIP_ESPP_CLONE:-0}
+SKIP_ESPP_CLONE=${SKIP_ESPP_CLONE:-true}
 ESPP_CLONE_PATH=${ESPP_CLONE_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
 
 ES_REPO_NAME=elasticsearch
 ES_REPO_URL=${ES_REPO_URL:-https://github.com/elastic/${ES_REPO_NAME}.git}
-SKIP_ES_CLONE=${SKIP_ES_CLONE:-0}
+SKIP_ES_CLONE=${SKIP_ES_CLONE:-true}
 ES_CLONE_PATH=${ES_CLONE_PATH:-$SCRIPT_HOME/$ES_REPO_NAME}
 
 case "${1:-}" in
@@ -112,10 +112,10 @@ function list_plugin_releases() {
     popd > /dev/null
 }
 
-if [[ "${SKIP_ESPP_CLONE:-0}" = 0  ]] ; then
+if [[ "false" == "${SKIP_ESPP_CLONE}" = 0  ]] ; then
     clone_repo ${ESPP_REPO_URL} ${ESPP_CLONE_PATH}
 fi
-if [[ "${SKIP_ES_CLONE:-0}" = 0  ]] ; then
+if [[ "false" == "${SKIP_ES_CLONE}" = 0  ]] ; then
     clone_repo ${ES_REPO_URL} ${ES_CLONE_PATH}
 fi
 
