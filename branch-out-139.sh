@@ -16,20 +16,20 @@ into local folder, alternatively, you can set the following variables:
 
 ESPP_REPO_URL - defaults to https://github.com/vvanholl/elasticsearch-prometheus-exporter.git
 
-ESPP_REPO_PATH - path where the Elasticsearch Prometheus Plugin repo is cloned into
-                 (defaults to ./elasticsearch-prometheus-exporter).
-                 Any existing folder at this part is deleted first when this script starts.
+ESPP_CLONE_PATH - path where the Elasticsearch Prometheus Plugin repo is cloned into
+                  (defaults to ./elasticsearch-prometheus-exporter).
+                  Any existing folder at this part is deleted first when this script starts.
 
-SKIP_ESPP_DOWNLOAD - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
-                     This is useful to locally debug the code.
+SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
+                  This is useful to locally debug the code.
 
 ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
 
-ES_REPO_PATH - path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
-               Any existing folder at this part is deleted first when this script starts.
+ES_CLONE_PATH - path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
+                Any existing folder at this part is deleted first when this script starts.
 
-SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
-                   This is useful to locally debug the code.
+SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
+                This is useful to locally debug the code.
 
 DRY_RUN - should any changes be made to local plugin repo clone (defaults to true).
 
@@ -48,11 +48,11 @@ PUSH_CHANGES_BACK=${PUSH_CHANGES_BACK:-false}
 
 ESPP_REPO_NAME=elasticsearch-prometheus-exporter
 ESPP_REPO_URL=${ESPP_REPO_URL:-https://github.com/vvanholl/${ESPP_REPO_NAME}.git}
-SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
+SKIP_ESPP_CLONE=${SKIP_ESPP_CLONE:-0}
 
 ES_REPO_NAME=elasticsearch
 ES_REPO_URL=${ES_REPO_URL:-https://github.com/elastic/${ES_REPO_NAME}.git}
-SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
+SKIP_ES_CLONE=${SKIP_ES_CLONE:-0}
 
 case "${1:-}" in
 --h*|-h*) usage ; exit 1 ;;
@@ -91,7 +91,7 @@ function list_es_releases() {
     shift
     local args=( "${@:-}" )
 
-    pushd ${ES_REPO_PATH} > /dev/null
+    pushd ${ES_CLONE_PATH} > /dev/null
     # pull all git tags for given major version; skipping alpha, beta, rc, ...
     local -a array=($(git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^v${es_major_ver}\.\d+\.\d+$"))
     popd > /dev/null
@@ -105,22 +105,17 @@ function list_plugin_releases() {
     shift
     local args=( "${@:-}" )
 
-    pushd ${ESPP_REPO_PATH} > /dev/null
+    pushd ${ESPP_CLONE_PATH} > /dev/null
 #    git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_major_ver}\.\d+\.\d+\.\d+$"
     git tag --sort=v:refname 2>/dev/null | grep $(bsd_or_gnu_grep_switch) "^${es_release_ver}\.\d+$"
     popd > /dev/null
 }
 
-export ESPP_REPO_PATH=${ESPP_REPO_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
-       ES_REPO_PATH=${ES_REPO_PATH:-$SCRIPT_HOME/$ES_REPO_NAME}
-       SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
-       SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
-
-if [[ "${SKIP_ESPP_DOWNLOAD:-0}" = 0  ]] ; then
-    clone_repo ${ESPP_REPO_URL} ${ESPP_REPO_PATH}
+if [[ "${SKIP_ESPP_CLONE:-0}" = 0  ]] ; then
+    clone_repo ${ESPP_REPO_URL} ${ESPP_CLONE_PATH}
 fi
-if [[ "${SKIP_ES_DOWNLOAD:-0}" = 0  ]] ; then
-    clone_repo ${ES_REPO_URL} ${ES_REPO_PATH}
+if [[ "${SKIP_ES_CLONE:-0}" = 0  ]] ; then
+    clone_repo ${ES_REPO_URL} ${ES_CLONE_PATH}
 fi
 
 # Which major ES releases we are going to process
@@ -152,7 +147,7 @@ do
       commands="${commands}; git checkout master"
       echo "      \$ ${commands}"
       if [[ "false" == "${DRY_RUN}" ]] ; then
-        pushd ${ESPP_REPO_PATH} > /dev/null
+        pushd ${ESPP_CLONE_PATH} > /dev/null
         eval ${commands}
         popd > /dev/null
       fi
@@ -164,7 +159,7 @@ if [[ "true" == "${PUSH_CHANGES_BACK}" ]] ; then
   commands="git push origin --all"
   echo "${commands}"
   if [[ "false" == "${DRY_RUN}" ]] ; then
-    pushd ${ESPP_REPO_PATH} > /dev/null
+    pushd ${ESPP_CLONE_PATH} > /dev/null
     eval ${commands}
     popd > /dev/null
   fi
