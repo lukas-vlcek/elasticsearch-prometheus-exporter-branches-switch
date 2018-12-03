@@ -112,10 +112,10 @@ function list_plugin_releases() {
     popd > /dev/null
 }
 
-if [[ "false" == "${SKIP_ESPP_CLONE}" = 0  ]] ; then
+if [[ "false" == "${SKIP_ESPP_CLONE}" ]] ; then
     clone_repo ${ESPP_REPO_URL} ${ESPP_CLONE_PATH}
 fi
-if [[ "false" == "${SKIP_ES_CLONE}" = 0  ]] ; then
+if [[ "false" == "${SKIP_ES_CLONE}" ]] ; then
     clone_repo ${ES_REPO_URL} ${ES_CLONE_PATH}
 fi
 
