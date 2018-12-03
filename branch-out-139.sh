@@ -159,7 +159,7 @@ done
 
 if [[ "true" == "${PUSH_CHANGES_BACK}" ]] ; then
   commands="git push origin --all"
-  echo "${commands}"
+  echo "\$ ${commands}"
   if [[ "false" == "${DRY_RUN}" ]] ; then
     pushd ${ESPP_CLONE_PATH} > /dev/null
     eval ${commands}
