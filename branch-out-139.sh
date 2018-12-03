@@ -14,15 +14,15 @@ branches as discussed in https://github.com/vvanholl/elasticsearch-prometheus-ex
 In the beginning it will make a fresh clone of "Elasticsearch" and "ES Prometheus plugin" repositories
 into local folder, alternatively, you can set the following variables:
 
-DRY_RUN - should any changes be made to local plugin repo clone? (defaults to true).
+DRY_RUN - if true then no changes are made to local plugin repo clone (defaults to true).
 
-PUSH_CHANGES_BACK - push new branches to plugin origin repo? (defaults to false).
+PUSH_CHANGES_BACK - if false then no branches are pushed to plugin origin repo (defaults to false).
 
 ESPP_REPO_URL - defaults to https://github.com/vvanholl/elasticsearch-prometheus-exporter.git
 
-ESPP_CLONE_PATH - path where the Elasticsearch Prometheus Plugin repo is cloned into
+ESPP_CLONE_PATH - local path where the Elasticsearch Prometheus Plugin repo is cloned into
                   (defaults to ./elasticsearch-prometheus-exporter).
-                  Any existing folder at this part is deleted first when this script starts.
+                  Any existing folder at this path is deleted first when this script starts.
 
 SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
 SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
@@ -30,8 +30,8 @@ SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local 
 
 ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
 
-ES_CLONE_PATH - path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
-                Any existing folder at this part is deleted first when this script starts.
+ES_CLONE_PATH - local path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
+                Any existing folder at this path is deleted first when this script starts.
 
 SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
                 This is useful to locally debug the code.
