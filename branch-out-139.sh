@@ -14,20 +14,26 @@ branches as discussed in https://github.com/vvanholl/elasticsearch-prometheus-ex
 In the beginning it will make a fresh clone of "Elasticsearch" and "ES Prometheus plugin" repositories
 into local folder, alternatively, you can set the following variables:
 
+ESPP_REPO_URL - defaults to https://github.com/vvanholl/elasticsearch-prometheus-exporter.git
+
 ESPP_REPO_PATH - path where the Elasticsearch Prometheus Plugin repo is cloned into
                  (defaults to ./elasticsearch-prometheus-exporter).
                  Any existing folder at this part is deleted first when this script starts.
 
-ES_REPO_PATH - path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
-               Any existing folder at this part is deleted first when this script starts.
-
 SKIP_ESPP_DOWNLOAD - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
                      This is useful to locally debug the code.
+
+ES_REPO_URL - defaults to https://github.com/elastic/elasticsearch.git
+
+ES_REPO_PATH - path where the Elasticsearch repo is cloned into (defaults to ./elasticsearch).
+               Any existing folder at this part is deleted first when this script starts.
 
 SKIP_ES_DOWNLOAD - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
                    This is useful to locally debug the code.
 
-PUSH_TO_ORIGIN - push new branches to plugin origin repo? (defaults to false).
+DRY_RUN - should any changes be made to local plugin repo clone (defaults to true).
+
+PUSH_CHANGES_BACK - push new branches to plugin origin repo? (defaults to false).
 
 EOF
 }
@@ -37,14 +43,15 @@ EOF
 #grep --version
 
 SCRIPT_HOME=`pwd`
-PUSH_TO_ORIGIN=${PUSH_TO_ORIGIN:-false}
+DRY_RUN=${DRY_RUN:-true}
+PUSH_CHANGES_BACK=${PUSH_CHANGES_BACK:-false}
 
 ESPP_REPO_NAME=elasticsearch-prometheus-exporter
-ESPP_REPO_URL=https://github.com/vvanholl/${ESPP_REPO_NAME}.git
+ESPP_REPO_URL=${ESPP_REPO_URL:-https://github.com/vvanholl/${ESPP_REPO_NAME}.git}
 SKIP_ESPP_DOWNLOAD=${SKIP_ESPP_DOWNLOAD:-0}
 
 ES_REPO_NAME=elasticsearch
-ES_REPO_URL=https://github.com/elastic/${ES_REPO_NAME}.git
+ES_REPO_URL=${ES_REPO_URL:-https://github.com/elastic/${ES_REPO_NAME}.git}
 SKIP_ES_DOWNLOAD=${SKIP_ES_DOWNLOAD:-0}
 
 case "${1:-}" in
@@ -137,12 +144,28 @@ do
       do
         echo "      - ${new_branch}"
       done
-      echo "      git checkout ${release_branches[${#release_branches[@]}-1]}"
-      echo "      git checkout -b ${es_release}"
-      if [[ "true" == "${PUSH_TO_ORIGIN}" ]] ; then
-        echo "      git push origin ${es_release}"
+      commands="git checkout ${release_branches[${#release_branches[@]}-1]}"
+      commands="${commands}; git checkout -b ${es_release}"
+#      if [[ "true" == "${PUSH_CHANGES_BACK}" ]] ; then
+#        commands="${commands}; git push origin ${es_release}"
+#      fi
+      commands="${commands}; git checkout master"
+      echo "      \$ ${commands}"
+      if [[ "false" == "${DRY_RUN}" ]] ; then
+        pushd ${ESPP_REPO_PATH} > /dev/null
+        eval ${commands}
+        popd > /dev/null
       fi
-      echo "      git checkout master"
     fi
   done
 done
+
+if [[ "true" == "${PUSH_CHANGES_BACK}" ]] ; then
+  commands="git push origin --all"
+  echo "${commands}"
+  if [[ "false" == "${DRY_RUN}" ]] ; then
+    pushd ${ESPP_REPO_PATH} > /dev/null
+    eval ${commands}
+    popd > /dev/null
+  fi
+fi
