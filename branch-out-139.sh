@@ -8,11 +8,11 @@ Usage: $0
 
 Example: $0 1> branching.log 2> error.log
 
-This script converts clone of elasticsearch-prometheus-exporter repository into
+This script converts elasticsearch-prometheus-exporter repository into
 branches as discussed in https://github.com/vvanholl/elasticsearch-prometheus-exporter/issues/139
 
 In the beginning it will make a fresh clone of "Elasticsearch" and "ES Prometheus plugin" repositories
-into local folder, alternatively, you can set the following variables:
+into local folders, alternatively, you can set the following variables:
 
 DRY_RUN - if true then no changes are made to local plugin repo clone (defaults to true).
 
@@ -24,7 +24,6 @@ ESPP_CLONE_PATH - local path where the Elasticsearch Prometheus Plugin repo is c
                   (defaults to ./elasticsearch-prometheus-exporter).
                   Any existing folder at this path is deleted first when this script starts.
 
-SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
 SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
                   This is useful to locally debug the code.
 
