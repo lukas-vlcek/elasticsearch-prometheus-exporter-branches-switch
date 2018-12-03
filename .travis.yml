@@ -1,5 +1,5 @@
 env:
-  - DRY_RUN=true PUSH_CHANGES_BACK=false
+  - PUSH_CHANGES_BACK=true DRY_RUN=true
 
 script:
   - pwd
