@@ -57,7 +57,7 @@ I would recommend using this script in few stages:
 This will clone both the Elasticsearch and Prometheus plugin into local folders and then it will print what changes would
 be done in local copy of the plugin repo but none of them is actually made. I suggest going though the output first.
 
-### Speed thing up a bit
+### Speed things up a bit
 
 ```bash
 SKIP_ES_CLONE=true ./branch-out-139.sh
@@ -112,7 +112,7 @@ export PUSH_CHANGES_BACK=true
 
 This will actually push all the new branches into remote plugin repository. Notice, that in this example
 we are still using copy of the production repository. Should we leave out the `ESPP_REPO_URL` param then
-the changes would be pushed to production plugin repo (which also assumes use has repo push privilege).
+the changes would be pushed to production plugin repo (which also assumes user has repo push privilege).
 
 You can also leave out (or **unset** if they are already set!!!) both the `ESPP_REPO_URL` and `PUSH_CHANGES_BACK` params 
 which will allow you to push all the changes manually into production repo, like:
@@ -122,5 +122,6 @@ export SKIP_ES_CLONE=true
 export DRY_RUN=false
 ./branch-out-139.sh
 cd elasticsearch-prometheus-exporter
+# Do final review...
 git push origin --all
 ```
