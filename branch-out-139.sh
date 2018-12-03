@@ -14,12 +14,17 @@ branches as discussed in https://github.com/vvanholl/elasticsearch-prometheus-ex
 In the beginning it will make a fresh clone of "Elasticsearch" and "ES Prometheus plugin" repositories
 into local folder, alternatively, you can set the following variables:
 
+DRY_RUN - should any changes be made to local plugin repo clone? (defaults to true).
+
+PUSH_CHANGES_BACK - push new branches to plugin origin repo? (defaults to false).
+
 ESPP_REPO_URL - defaults to https://github.com/vvanholl/elasticsearch-prometheus-exporter.git
 
 ESPP_CLONE_PATH - path where the Elasticsearch Prometheus Plugin repo is cloned into
                   (defaults to ./elasticsearch-prometheus-exporter).
                   Any existing folder at this part is deleted first when this script starts.
 
+SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
 SKIP_ESPP_CLONE - skip cloning ES Prometheus plugin source code. Assuming local copy is used (defaults to 0).
                   This is useful to locally debug the code.
 
@@ -30,11 +35,6 @@ ES_CLONE_PATH - path where the Elasticsearch repo is cloned into (defaults to ./
 
 SKIP_ES_CLONE - skip cloning Elasticsearch code. Assuming local copy is used (defaults to 0).
                 This is useful to locally debug the code.
-
-DRY_RUN - should any changes be made to local plugin repo clone (defaults to true).
-
-PUSH_CHANGES_BACK - push new branches to plugin origin repo? (defaults to false).
-
 EOF
 }
 
@@ -49,10 +49,12 @@ PUSH_CHANGES_BACK=${PUSH_CHANGES_BACK:-false}
 ESPP_REPO_NAME=elasticsearch-prometheus-exporter
 ESPP_REPO_URL=${ESPP_REPO_URL:-https://github.com/vvanholl/${ESPP_REPO_NAME}.git}
 SKIP_ESPP_CLONE=${SKIP_ESPP_CLONE:-0}
+ESPP_CLONE_PATH=${ESPP_CLONE_PATH:-$SCRIPT_HOME/$ESPP_REPO_NAME}
 
 ES_REPO_NAME=elasticsearch
 ES_REPO_URL=${ES_REPO_URL:-https://github.com/elastic/${ES_REPO_NAME}.git}
 SKIP_ES_CLONE=${SKIP_ES_CLONE:-0}
+ES_CLONE_PATH=${ES_CLONE_PATH:-$SCRIPT_HOME/$ES_REPO_NAME}
 
 case "${1:-}" in
 --h*|-h*) usage ; exit 1 ;;
